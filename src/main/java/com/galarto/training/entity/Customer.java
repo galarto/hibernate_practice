@@ -16,10 +16,13 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
+
     @Column
     private String name;
+
     @Column
     private String surname;
+
     @Type(type = "com.galarto.training.util.MoneyUserType")
     @Columns(columns = {@Column(name = "balance"), @Column(name = "currency")})
     private BigMoney balance;

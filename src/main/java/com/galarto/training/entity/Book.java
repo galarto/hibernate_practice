@@ -15,10 +15,13 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
+
     @Column
     private String title;
+
     @Column
     private int year;
+
     @Column
     private int count;
     //Связь двусторонняя и каскадом выполняются все операции кроме удаления
@@ -27,9 +30,11 @@ public class Book {
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "author_id")
     private Author author;
+
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(255)")
     private Genre genre;
+
     @Type(type = "com.galarto.training.util.MoneyUserType")
     @Columns(columns = {@Column(name = "price"), @Column(name = "currency")})
     private BigMoney price;

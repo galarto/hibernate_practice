@@ -11,15 +11,20 @@ public class Author {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private int id;
+
     @Column
     private String name;
+
     @Column
     private String surname;
+
     @Column
     private String patronymic;
+
     @OneToMany(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH}
             , mappedBy = "author")
     private List<Book> books;
+
 
     public Author() {
     }

@@ -22,6 +22,8 @@ public class Customer {
 
     @Column
     private String surname;
+    @Column
+    private String email;
 
     @Type(type = "com.galarto.training.util.MoneyUserType")
     @Columns(columns = {@Column(name = "balance"), @Column(name = "currency")})
@@ -37,10 +39,11 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(String name, String surname, BigMoney balance) {
+    public Customer(String name, String surname, BigMoney balance, String email) {
         this.name = name;
         this.surname = surname;
         this.balance = balance;
+        this.email = email;
     }
 
     public void addBookToCustomer(Book book) {

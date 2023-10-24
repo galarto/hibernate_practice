@@ -1,47 +1,76 @@
 package com.galarto.training;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.galarto.training.entity.Author;
 import com.galarto.training.entity.Book;
 import com.galarto.training.entity.Customer;
-import com.galarto.training.entity.Genre;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.joda.money.BigMoney;
-import org.joda.money.CurrencyUnit;
+import com.galarto.training.repository.AuthorRepository;
+import com.galarto.training.repository.BookRepository;
+import com.galarto.training.repository.CustomerRepository;
+import com.galarto.training.services.AdminService;
+import com.galarto.training.services.CustomerService;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Scanner;
+
+import static sun.jvm.hotspot.debugger.win32.coff.DebugVC50X86RegisterEnums.STATUS;
+import static sun.security.provider.certpath.OCSPResponse.ResponseStatus.SUCCESSFUL;
 
 public class Main {
-    public static void main(String[] args) {
-        SessionFactory factory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Book.class)
-                .addAnnotatedClass(Author.class)
-                .addAnnotatedClass(Customer.class)
-                .buildSessionFactory();
-
-        Session session = null;
-
-        try {
-            session = factory.getCurrentSession();
-//            Author a1 = new Author("Alexander", "Pushkin", "Sergeevich");
-//            Book book = new Book("Captain's daughter", 1836, 10, Genre.HISTORIC_NOVEL,
-//                    BigMoney.of(CurrencyUnit.USD, 20));
-//            Customer customer = new Customer("Pyotr", "Svidler", BigMoney.of(CurrencyUnit.USD, 250));
-//            a1.addBookToAuthor(book);
-//            customer.addBookToCustomer(book);
-
-            session.beginTransaction();
-
-            Author author = session.get(Author.class, 1);
-            System.out.println(author);
-            System.out.println(author.getBooks() + " ");
-
-
-            session.getTransaction().commit();
-        } finally {
-            session.close();
-            factory.close();
+    public static void main(String[] args) throws IOException {
+        CustomerRepository customerRepository = new CustomerRepository();
+        BookRepository bookRepository = new BookRepository();
+        AuthorRepository authorRepository = new AuthorRepository();
+        CustomerService customerService = new CustomerService(customerRepository, bookRepository);
+        AdminService adminService = new AdminService(bookRepository, customerRepository, authorRepository);
+        // json : { \"operation\" : \"addAuthor\", \"name\" : \"qqq\", \"surname\" : \"wwww\", \"patronymic\" : \"zzzzz\" }
+        // {"operation" : "addAuthor", "Author" : {"name" : "aaa", "surname" : "ssss", "patronymic" : "ggg"}}
+        Scanner scanner = new Scanner(System.in);
+        ObjectMapper om = new ObjectMapper();
+        while (true) {
+            String json = scanner.nextLine();
+            Map<String, Object> m1 = om.readValue(json, Map.class);
+            System.out.println(m1.get("operation"));
+//            System.out.println((om.writeValueAsString(m1.get("Author"))));
+//            Author a1 = om.readValue((om.writeValueAsString(m1.get("Author"))), Author.class);
+//            System.out.println(a1);
+            String op = (String) m1.get("operation");
+            System.out.println(op);
+            System.out.println(m1.get("operation").toString());
+            switch (op) {
+                case "addAuthor":
+                    Author author = om.readValue((om.writeValueAsString(m1.get("Author"))), Author.class);
+                    adminService.addAuthor(author);
+                    // AdminService.addAuthor метод
+                    break;
+                case "addBook":
+                    Book book = om.readValue((om.writeValueAsString(m1.get("Book"))), Book.class);
+                    adminService.addBook(book);
+                    // AdminService.addBook, проверить существуют ли книга и автор -> вернуть результат
+                    break;
+                case "buyBook":
+                    Book b = om.readValue((om.writeValueAsString(m1.get("Book"))), Book.class);
+                    Customer customer = om.readValue((om.writeValueAsString(m1.get("Customer"))), Customer.class);
+                    customerService.buyBook(b.getId(), customer.getId());
+                    adminService.setBalance(adminService.getBalance().plus(b.getPrice()));
+                    //CustomerService.buyBook
+                    break;
+                case "signUp":
+                    Customer c = om.readValue((om.writeValueAsString(m1.get("Customer"))), Customer.class);
+                    customerService.signUp(c.getId(), c.getName(), c.getSurname(), c.getBalance(), c.getEmail());
+                    //CustomerService.signUp
+                    break;
+                case "logIn":
+                    Customer c2 = om.readValue((om.writeValueAsString(m1.get("Customer"))), Customer.class);
+                    customerService.logIn(c2.getEmail());
+                    //CustomerService.logIn
+                    break;
+                default:
+                    // json wrong operation
+            }
         }
-    }
 
+    }
 }

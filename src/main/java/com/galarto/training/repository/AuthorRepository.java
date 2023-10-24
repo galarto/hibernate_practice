@@ -1,93 +1,44 @@
 package com.galarto.training.repository;
 
 import com.galarto.training.entity.Author;
-import com.galarto.training.entity.Book;
-import com.galarto.training.entity.Customer;
+import com.galarto.training.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.Transaction;
+
 
 public class AuthorRepository {
     public void saveAuthor(Author author){
-        SessionFactory factory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Book.class)
-                .addAnnotatedClass(Author.class)
-                .addAnnotatedClass(Customer.class)
-                .buildSessionFactory();
-
-        Session session = null;
-
-        try {
-            session = factory.getCurrentSession();
-            session.beginTransaction();
-            session.save(author);
-            session.getTransaction().commit();
-        } finally {
-            session.close();
-            factory.close();
-        }
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        session.save(author);
+        transaction.commit();
+        session.close();
     }
 
     public void updateAuthor(Author author){
-        SessionFactory factory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Book.class)
-                .addAnnotatedClass(Author.class)
-                .addAnnotatedClass(Customer.class)
-                .buildSessionFactory();
-
-        Session session = null;
-        try{
-            session = factory.getCurrentSession();
-            session.beginTransaction();
-            session.saveOrUpdate(author);
-            session.getTransaction().commit();
-        } finally {
-            session.close();
-            factory.close();
-        }
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        session.saveOrUpdate(author);
+        transaction.commit();
+        session.close();
     }
 
     public Author getAuthor(int id) {
-        SessionFactory factory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Book.class)
-                .addAnnotatedClass(Author.class)
-                .addAnnotatedClass(Customer.class)
-                .buildSessionFactory();
-
-        Session session = null;
-        try {
-            session = factory.getCurrentSession();;
-            session.beginTransaction();
-            Author author = session.get(Author.class, id);
-            session.getTransaction().commit();
-            return author;
-        } finally {
-            session.close();
-            factory.close();
-        }
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        Author author = session.get(Author.class, id);
+        transaction.commit();
+        session.close();
+        return author;
     }
 
     public void deleteAuthor(int id) {
-        SessionFactory factory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Book.class)
-                .addAnnotatedClass(Author.class)
-                .addAnnotatedClass(Customer.class)
-                .buildSessionFactory();
-
-        Session session = null;
-        try {
-            session = factory.getCurrentSession();;
-            session.beginTransaction();
-            Author author = session.get(Author.class, id);
-            session.delete(author);
-        } finally {
-            session.close();
-            factory.close();
-        }
+        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        Author author = session.get(Author.class, id);
+        session.delete(author);
+        transaction.commit();
+        session.close();
     }
 
 

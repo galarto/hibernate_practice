@@ -1,5 +1,6 @@
 package com.galarto.training.entity;
 
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
 import org.joda.money.BigMoney;
@@ -10,6 +11,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "Books")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +31,10 @@ public class Book {
     //Связь двусторонняя и каскадом выполняются все операции кроме удаления
     //Если удаляется книга - автор остается. Автора из базы удалить нельзя из-за за fk,
     //Ввиду этого, нужно будет удалить все книги автора, прежде, чем удалить его самого
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
+    @JsonBackReference(value = "books-authors")
     private Author author;
 
     @Enumerated(EnumType.STRING)
@@ -37,13 +43,15 @@ public class Book {
 
     @Type(type = "com.galarto.training.util.MoneyUserType")
     @Columns(columns = {@Column(name = "price"), @Column(name = "currency")})
+    @JsonIncludeProperties({"amount", "currencyUnit"})
     private BigMoney price;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "books_customers"
             , joinColumns = @JoinColumn (name = "book_id")
             , inverseJoinColumns = @JoinColumn(name = "customer_id"))
+    @JsonIgnore
     private List<Customer> customerList;
 
     //К сожалению, currencyUnit в joda.money не содержит рубли
@@ -138,7 +146,8 @@ public class Book {
                 ", year=" + year +
                 ", count=" + count +
                 ", genre=" + genre +
-                ", price=" + price +
+                ", price=" + price.getAmount() +
+                price.getCurrencyUnit().getCode() +
                 '}';
     }
 }

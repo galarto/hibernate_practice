@@ -1,5 +1,7 @@
 package com.galarto.training.entity;
 
+
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
 import org.joda.money.BigMoney;
@@ -11,6 +13,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "customers")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +34,7 @@ public class Customer {
     @Columns(columns = {@Column(name = "balance"), @Column(name = "currency")})
     private BigMoney balance;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "books_customers"
             , joinColumns = @JoinColumn(name = "customer_id")
@@ -83,6 +88,14 @@ public class Customer {
 
     public void setBalance(BigMoney balance) {
         this.balance = balance;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public List<Book> getBookList() {

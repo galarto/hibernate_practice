@@ -1,8 +1,12 @@
 package com.galarto.training.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Authors")
@@ -22,7 +26,8 @@ public class Author {
     private String patronymic;
 
     @OneToMany(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH}
-            , mappedBy = "author")
+            , mappedBy = "author", fetch = FetchType.EAGER)
+    @JsonManagedReference(value = "books-authors")
     private List<Book> books;
 
 
@@ -84,10 +89,22 @@ public class Author {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Author author = (Author) o;
+        return Objects.equals(name, author.name) && Objects.equals(surname, author.surname) && Objects.equals(patronymic, author.patronymic);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, surname, patronymic, books);
+    }
+
+    @Override
     public String toString() {
         return "Author{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", patronymic='" + patronymic + '\'' +
                 '}';

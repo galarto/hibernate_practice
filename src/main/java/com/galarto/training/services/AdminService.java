@@ -1,7 +1,5 @@
 package com.galarto.training.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.galarto.training.entity.Author;
 import com.galarto.training.entity.Book;
 import com.galarto.training.repository.AuthorRepository;
@@ -9,11 +7,7 @@ import com.galarto.training.repository.BookRepository;
 import com.galarto.training.repository.CustomerRepository;
 import org.joda.money.BigMoney;
 
-import static sun.jvm.hotspot.debugger.win32.coff.DebugVC50X86RegisterEnums.STATUS;
-import static sun.security.provider.certpath.OCSPResponse.ResponseStatus.SUCCESSFUL;
-
 public class AdminService {
-    ObjectMapper objectMapper = new ObjectMapper();
     BookRepository bookRepository = new BookRepository();
     CustomerRepository customerRepository = new CustomerRepository();
     AuthorRepository authorRepository = new AuthorRepository();
@@ -48,20 +42,19 @@ public class AdminService {
         } else {
             bookRepository.getBook(book.getId())
                     .setCount(bookRepository.getBook(book.getId()).getCount() + book.getCount());
+            bookRepository.updateBook(book);
         }
         return createSuccessfulJSON();
     }
 
     private String createSuccessfulJSON() {
-        return "{" +
-                '"' + STATUS + '"' + ':' + '"' + SUCCESSFUL + '"' +
-                '}';
+        return "{ STATUS  :   SUCCESSFUL}";
     }
 
     private String createExceptionJSON(Exception e) {
         return "{" +
-                '"' + STATUS + '"' + ':' + '"' + e.getMessage() + '"' +
-                '}';
+                "  STATUS  " + e.getMessage() +
+                "}";
     }
 }
 

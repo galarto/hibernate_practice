@@ -13,11 +13,8 @@ import org.joda.money.BigMoney;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static sun.jvm.hotspot.debugger.win32.coff.DebugVC50X86RegisterEnums.STATUS;
-import static sun.security.provider.certpath.OCSPResponse.ResponseStatus.SUCCESSFUL;
 
 public class CustomerService {
-    ObjectMapper objectMapper = new ObjectMapper();
     private final CustomerRepository customerRepository;
     private final BookRepository bookRepository;
 
@@ -38,30 +35,30 @@ public class CustomerService {
 
     public String getUserBooks(Customer customer) throws JsonProcessingException {
         List<Book> customerBooks = customerRepository.getCustomer(customer.getId()).getBookList();
-        return objectMapper.writeValueAsString(customerBooks);
+        return mapToJSON(customerBooks);
     }
 
     public String getBooks() throws JsonProcessingException {
         List<Book> books = bookRepository.getAvailableBooks();
-        return objectMapper.writeValueAsString(books);
+        return mapToJSON(books);
     }
 
     public String filter(Author author) throws JsonProcessingException {
         List<Book> books = bookRepository.getAvailableBooks().stream()
                         .filter(book -> book.getAuthor().equals(author)).collect(Collectors.toList());
-        return objectMapper.writeValueAsString(books);
+        return mapToJSON(books);
     }
 
     public String filter(Genre genre) throws JsonProcessingException {
         List<Book> books = bookRepository.getBooks(genre);
-        return objectMapper.writeValueAsString(books);
+        return mapToJSON(books);
     }
 
     public String filter(BigMoney price) throws JsonProcessingException {
         List<Book> books = bookRepository.getAvailableBooks().stream()
                         .filter(book -> book.getPrice().getAmount().compareTo(price.getAmount()) <= 0)
                         .collect(Collectors.toList());
-        return objectMapper.writeValueAsString(books);
+        return mapToJSON(books);
     }
 
     public String signUp(int id, String name, String surname, BigMoney balance, String email) {
@@ -92,16 +89,21 @@ public class CustomerService {
         }
     }
 
+    public String mapToJSON(Object o) throws JsonProcessingException{
+        ObjectMapper om = new ObjectMapper();
+        return om.writeValueAsString(o);
+    }
+
     private String createSuccessfulJSON() {
         return "{" +
-                '"' + STATUS + '"' + ':' + '"' + SUCCESSFUL + '"' +
-                '}';
+                " STATUS  :   SUCCESSFUL"  +
+                "}";
     }
 
     private String createExceptionJSON(Exception e) {
         return "{" +
-                '"' + STATUS + '"' + ':' + '"' + e.getMessage() + '"' +
-                '}';
+                "  STATUS  " + e.getMessage() +
+                "}";
     }
 
 }

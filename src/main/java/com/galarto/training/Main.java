@@ -1,6 +1,5 @@
 package com.galarto.training;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.galarto.training.entity.Author;
 import com.galarto.training.entity.Book;
@@ -15,8 +14,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Scanner;
 
-import static sun.jvm.hotspot.debugger.win32.coff.DebugVC50X86RegisterEnums.STATUS;
-import static sun.security.provider.certpath.OCSPResponse.ResponseStatus.SUCCESSFUL;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -33,12 +30,8 @@ public class Main {
             String json = scanner.nextLine();
             Map<String, Object> m1 = om.readValue(json, Map.class);
             System.out.println(m1.get("operation"));
-//            System.out.println((om.writeValueAsString(m1.get("Author"))));
-//            Author a1 = om.readValue((om.writeValueAsString(m1.get("Author"))), Author.class);
-//            System.out.println(a1);
             String op = (String) m1.get("operation");
-            System.out.println(op);
-            System.out.println(m1.get("operation").toString());
+
             switch (op) {
                 case "addAuthor":
                     Author author = om.readValue((om.writeValueAsString(m1.get("Author"))), Author.class);
@@ -68,7 +61,7 @@ public class Main {
                     //CustomerService.logIn
                     break;
                 default:
-                    // json wrong operation
+                    System.out.println("{JSON : wrong operation}");// json wrong operation
             }
         }
 
